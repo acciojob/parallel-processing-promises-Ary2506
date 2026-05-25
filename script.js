@@ -1,59 +1,77 @@
-//your JS code here. If required.
-
+// Get elements
 const output = document.getElementById("output");
+const loading = document.getElementById("loading");
+const error = document.getElementById("error");
 
+// Image URLs
 const images = [
   { url: "https://picsum.photos/id/237/200/300" },
   { url: "https://picsum.photos/id/238/200/300" },
   { url: "https://picsum.photos/id/239/200/300" },
 ];
 
-// Function to download one image
-function downloadImage(url) {
+// Function to download image
+function downloadImage(url){
+
   return new Promise((resolve, reject) => {
 
     const img = document.createElement("img");
 
     img.src = url;
 
+    // Success
     img.onload = () => {
       resolve(img);
     };
 
+    // Error
     img.onerror = () => {
       reject(`Failed to load image: ${url}`);
     };
 
   });
+
 }
 
 // Main function
-async function downloadImages() {
+async function downloadImages(){
 
-  // Loading message
-  output.innerHTML = "<p>Loading...</p>";
+  // Show loading spinner
+  loading.innerHTML = `
+    <div class="spinner"></div>
+    <p>Loading Images...</p>
+  `;
 
-  try {
+  // Clear previous messages
+  output.innerHTML = "";
+  error.innerHTML = "";
+
+  try{
 
     // Download all images together
     const downloadedImages = await Promise.all(
       images.map(image => downloadImage(image.url))
     );
 
-    // Clear loading text
-    output.innerHTML = "";
+    // Hide loading
+    loading.innerHTML = "";
 
-    // Show all images
+    // Display images
     downloadedImages.forEach(img => {
       output.appendChild(img);
     });
 
-  } catch (error) {
+  }
+  catch(err){
 
-    // Show error message
-    output.innerHTML = `<p style="color:red;">${error}</p>`;
+    // Hide loading
+    loading.innerHTML = "";
+
+    // Show error
+    error.innerHTML = err;
 
   }
+
 }
 
 // Call function
