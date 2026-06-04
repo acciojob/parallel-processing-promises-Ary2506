@@ -1,78 +1,45 @@
-// Get elements
 const output = document.getElementById("output");
 const loading = document.getElementById("loading");
 const error = document.getElementById("error");
 
-// Image URLs
-const images = [
-  { url: "https://picsum.photos/id/237/200/300" },
-  { url: "https://picsum.photos/id/238/200/300" },
-  { url: "https://picsum.photos/id/239/200/300" },
+const imageUrls = [
+  "https://picsum.photos/id/237/200/300",
+  "https://picsum.photos/id/238/200/300",
+  "https://picsum.photos/id/239/200/300"
 ];
 
-// Function to download image
-function downloadImage(url){
-
+function downloadImage(url) {
   return new Promise((resolve, reject) => {
-
     const img = document.createElement("img");
 
+    img.onload = () => resolve(img);
+
+    img.onerror = () =>
+      reject(new Error(`Failed to load image: ${url}`));
+
     img.src = url;
-
-    // Success
-    img.onload = () => {
-      resolve(img);
-    };
-
-    // Error
-    img.onerror = () => {
-      reject(`Failed to load image: ${url}`);
-    };
-
   });
-
 }
 
-// Main function
-async function downloadImages(){
-
-  // Show loading spinner
-  loading.innerHTML = `
-    <div class="spinner"></div>
-    <p>Loading Images...</p>
-  `;
-
-  // Clear previous messages
+async function downloadImages() {
+  loading.innerHTML = '<div class="spinner"></div>';
+  error.textContent = "";
   output.innerHTML = "";
-  error.innerHTML = "";
 
-  try{
-
-    // Download all images together
-    const downloadedImages = await Promise.all(
-      images.map(image => downloadImage(image.url))
+  try {
+    const images = await Promise.all(
+      imageUrls.map(url => downloadImage(url))
     );
 
-    // Hide loading
     loading.innerHTML = "";
 
-    // Display images
-    downloadedImages.forEach(img => {
+    images.forEach(img => {
       output.appendChild(img);
     });
-
-  }
-  catch(err){
-
-    // Hide loading
+  } catch (err) {
     loading.innerHTML = "";
-
-    // Show error
-    error.innerHTML = err;
-
+    error.textContent = err.message;
   }
-
 }
 
-// Call function
 downloadImages();
